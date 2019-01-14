@@ -2,6 +2,7 @@
 using LedMessageBoard.DisplayAdapters;
 using System;
 using System.Windows.Forms;
+using LedMessageBoard.Exceptions;
 
 namespace LedMessageBoard.ConfigurationPanels
 {
@@ -10,20 +11,31 @@ namespace LedMessageBoard.ConfigurationPanels
     /// </summary>
     internal partial class CustomTextConfigurationPanel : ConfigurationPanel, IConfigurationPanel
     {
-        public IDisplayAdapter DisplayAdapter { get; private set; }
-
         public CustomTextConfigurationPanel()
         {
             InitializeComponent();
-
-            this.Reset();
         }
 
-        public void Initialize(bool makeActive)
+        /// <summary>
+        /// Creates a display adapter based on the entered values
+        /// </summary>
+        /// <exception cref="ConfigurationException"/>
+        /// <returns>A countdown display adapter</returns>
+        public IDisplayAdapter CreateDisplayAdapter()
         {
-            var timespan = new TimeSpan(0, 0, LedMessageBoard.Properties.Settings.Default.Global_StaticDisplayDuration);
-            this.DisplayAdapter = new CustomTextDisplayAdapter(LedMessageBoard.Properties.Settings.Default.CustomTextConfigurationPanel_Message, timespan);
-            this.DisplayAdapter.Active = makeActive;
+            if (string.IsNullOrWhiteSpace(this.TextBoxTitle.Text))
+            {
+                throw new ConfigurationException("A display title is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(this.TextBoxMessage.Text))
+            {
+                throw new ConfigurationException("A message is required.");
+            }
+
+            var result = new CustomTextDisplayAdapter(this.TextBoxMessage.Text, this.TextBoxTitle.Text);
+
+            return result;
         }
 
         public ConfigurationPanel ToControl()
@@ -31,17 +43,24 @@ namespace LedMessageBoard.ConfigurationPanels
             return this;
         }
 
-        #region Overridden Methods
-
-        public override void Reset()
+        public string GetDisplayAdapterType()
         {
-            this.TextBoxMessage.Text = LedMessageBoard.Properties.Settings.Default.CustomTextConfigurationPanel_Message;
+            return LedMessageBoard.Properties.Resources.CustomTextDisplayType;
         }
 
-        public override void OnApply(object sender, CancelEventArgs e)
+        #region Overridden Methods
+
+        public override bool PopulateFromDisplayAdapter(IDisplayAdapter displayAdapter)
         {
-            LedMessageBoard.Properties.Settings.Default.CustomTextConfigurationPanel_Message = this.TextBoxMessage.Text;
-            LedMessageBoard.Properties.Settings.Default.Save();
+            if (displayAdapter is CustomTextDisplayAdapter da)
+            {
+                this.TextBoxTitle.Text = da.Title;
+                this.TextBoxMessage.Text = da.Message;
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

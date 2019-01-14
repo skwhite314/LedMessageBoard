@@ -16,17 +16,14 @@ namespace LedMessageBoard.ConfigurationPanels
         /// <summary>
         /// The adapter that coordinates the displaying of what the user configured
         /// </summary>
-        IDisplayAdapter DisplayAdapter { get; }
-
-        /// <summary>
-        /// Initializes the display adapter
-        /// </summary>
-        void Initialize(bool makeActive);
+        IDisplayAdapter CreateDisplayAdapter();
 
         /// <summary>
         /// Returns the implementing object as a ConfigurationPanel (can't use an interface as an object)
         /// </summary>
         /// <returns></returns>
         ConfigurationPanel ToControl();
+
+        string GetDisplayAdapterType();
     }
 }

@@ -3,3 +3,12 @@
 ################################################################################
 
 /.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/ProjectSettings.json
+/.vs/LedMessageBoard/v15/Server/sqlite3/storage.ide-wal
+/.vs/LedMessageBoard/v15/Server/sqlite3/storage.ide-shm
+/.vs/LedMessageBoard/v15/Server/sqlite3/storage.ide
+/.vs/LedMessageBoard/v15/Server/sqlite3/db.lock
+/.vs/LedMessageBoard/v15/.suo
+/LedMessageBoard/bin/Debug
+/LedMessageBoard/obj

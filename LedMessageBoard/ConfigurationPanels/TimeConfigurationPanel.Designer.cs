@@ -35,7 +35,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Location = new System.Drawing.Point(3, 37);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 13);
             this.label1.TabIndex = 0;
@@ -43,7 +43,7 @@
             // 
             // TextBoxTimeFormat
             // 
-            this.TextBoxTimeFormat.Location = new System.Drawing.Point(6, 16);
+            this.TextBoxTimeFormat.Location = new System.Drawing.Point(6, 53);
             this.TextBoxTimeFormat.Name = "TextBoxTimeFormat";
             this.TextBoxTimeFormat.Size = new System.Drawing.Size(198, 20);
             this.TextBoxTimeFormat.TabIndex = 1;
@@ -56,6 +56,9 @@
             this.Controls.Add(this.label1);
             this.Name = "TimeConfigurationPanel";
             this.Size = new System.Drawing.Size(227, 86);
+            this.Controls.SetChildIndex(this.label1, 0);
+            this.Controls.SetChildIndex(this.TextBoxTimeFormat, 0);
+            this.Controls.SetChildIndex(this.TextBoxTitle, 0);
             this.ResumeLayout(false);
             this.PerformLayout();
 

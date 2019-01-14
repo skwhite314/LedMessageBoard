@@ -10,23 +10,28 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     ///Sends the current time in the customized format to the appropriate view port
     /// </summary>
-    internal class TimeDisplayAdapter : IDisplayAdapter
+    internal class TimeDisplayAdapter : DisplayAdapter
     {
+        public string TimeFormat { get; private set; }
+
         private DateTime? timeToDisplay;
-
-        private string timeFormat;
-
-        private TimeSpan displayStatic;
 
         private DateTime displayStart;
 
-        public string Title { get { return LedMessageBoard.Properties.Resources.TimeTitle; } }
+        public TimeDisplayAdapter(string timeFormat, string title)
+        {
+            this.Title = title;
 
-        public bool Active { get; set; }
+            this.TimeFormat = timeFormat;
 
-        public ViewPort ViewPort { get; private set; }
+            this.timeToDisplay = null;
 
-        public bool DisplayComplete
+            this.ViewPort = ViewPortFactory.GetViewPort(DateTime.Now.ToString(this.TimeFormat));
+
+            this.displayStart = DateTime.Now;
+        }
+
+        public override bool DisplayComplete
         {
             get
             {
@@ -37,7 +42,7 @@ namespace LedMessageBoard.DisplayAdapters
 
                 if (this.ViewPort is StaticViewPort)
                 {
-                    return DateTime.Now - this.displayStart > this.displayStatic;
+                    return DateTime.Now - this.displayStart > StaticDisplayDuration;
                 }
                 else if (this.ViewPort is ScrollingViewPort)
                 {
@@ -48,19 +53,7 @@ namespace LedMessageBoard.DisplayAdapters
             }
         }
 
-        public TimeDisplayAdapter(string timeFormat, TimeSpan displayStatic)
-        {
-            this.timeFormat = timeFormat;
-
-            this.timeToDisplay = null;
-
-            this.ViewPort = ViewPortFactory.GetViewPort(DateTime.Now.ToString(this.timeFormat));
-
-            this.displayStatic = displayStatic;
-            this.displayStart = DateTime.Now;
-        }
-
-        public void Draw(HidDevice device, byte brightness)
+        public override void Draw(HidDevice device, byte brightness)
         {
             if (this.timeToDisplay == null || (DateTime.Now - this.timeToDisplay.Value).Seconds > 0)
             {
@@ -68,7 +61,7 @@ namespace LedMessageBoard.DisplayAdapters
 
                 var offset = this.ViewPort.Offset;
 
-                this.ViewPort = ViewPortFactory.GetViewPort(this.timeToDisplay.Value.ToString(this.timeFormat));
+                this.ViewPort = ViewPortFactory.GetViewPort(this.timeToDisplay.Value.ToString(this.TimeFormat));
 
                 this.ViewPort.Offset = offset;
             }
@@ -76,7 +69,7 @@ namespace LedMessageBoard.DisplayAdapters
             this.ViewPort.DisplayString(device, brightness);
         }
 
-        public void Reset()
+        public override void Reset()
         {
             this.timeToDisplay = null;
             this.displayStart = DateTime.Now;

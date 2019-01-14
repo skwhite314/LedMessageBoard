@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LedMessageBoard.DisplayAdapters;
+using LedMessageBoard.Exceptions;
 
 namespace LedMessageBoard.ConfigurationPanels
 {
@@ -16,49 +17,23 @@ namespace LedMessageBoard.ConfigurationPanels
     /// </summary>
     internal partial class CountdownConfigurationPanel : ConfigurationPanel, IConfigurationPanel
     {
-        public CountdownConfigurationPanel()
+        public CountdownConfigurationPanel() : base()
         {
             InitializeComponent();
-
-            this.Reset();
         }
 
-        public IDisplayAdapter DisplayAdapter { get; private set; }
-
-        public void Initialize(bool makeActive)
+        /// <summary>
+        /// Creates a display adapter based on the entered values
+        /// </summary>
+        /// <exception cref="ConfigurationException"/>
+        /// <returns>A countdown display adapter</returns>
+        public IDisplayAdapter CreateDisplayAdapter()
         {
-            var target = LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target;
-            var format = LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Format;
-            var timespan = new TimeSpan(0, 0, LedMessageBoard.Properties.Settings.Default.Global_StaticDisplayDuration);
-
-            this.DisplayAdapter = new CountdownDisplayAdapter(target, format, timespan);
-            this.DisplayAdapter.Active = makeActive;
-        }
-
-        public ConfigurationPanel ToControl()
-        {
-            return this;
-        }
-
-        #region Overridden Methods
-
-        public override void Reset()
-        {
-            if (LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target < DateTimePicker.MinimumDateTime ||
-                LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target > DateTimePicker.MaximumDateTime)
+            if (string.IsNullOrWhiteSpace(this.TextBoxTitle.Text))
             {
-                LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target = DateTime.Now + new TimeSpan(365, 0, 0, 0);
-                LedMessageBoard.Properties.Settings.Default.Save();
+                throw new ConfigurationException("A display title is required.");
             }
 
-            this.DateTimePickerDate.Value = LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target;
-            this.DateTimePickerTime.Value = LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target;
-
-            this.TextBoxFormat.Text = LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Format;
-        }
-
-        public override void OnApply(object sender, CancelEventArgs e)
-        {
             var format = this.TextBoxFormat.Text;
 
             var timespan = new TimeSpan(0, 0, 1);
@@ -70,10 +45,8 @@ namespace LedMessageBoard.ConfigurationPanels
             catch (FormatException ex)
             {
                 var message = string.Format("Invalid TimeSpan format: {0}", ex.Message);
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
 
-                return;
+                throw new ConfigurationException(message, ex);
             }
 
             var date = this.DateTimePickerDate.Value;
@@ -81,10 +54,36 @@ namespace LedMessageBoard.ConfigurationPanels
 
             var target = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
 
-            LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Target = target;
-            LedMessageBoard.Properties.Settings.Default.CountdownConfigurationPanel_Format = format;
+            var result = new CountdownDisplayAdapter(target, format, this.TextBoxTitle.Text);
 
-            LedMessageBoard.Properties.Settings.Default.Save();
+            return result;
+        }
+
+        public ConfigurationPanel ToControl()
+        {
+            return this;
+        }
+
+        public string GetDisplayAdapterType()
+        {
+            return LedMessageBoard.Properties.Resources.CountdownDisplayType;
+        }
+
+        #region Overridden Methods
+
+        public override bool PopulateFromDisplayAdapter(IDisplayAdapter displayAdapter)
+        {
+            if (displayAdapter is CountdownDisplayAdapter da)
+            {
+                this.TextBoxTitle.Text = da.Title;
+                this.DateTimePickerDate.Value = da.Target;
+                this.DateTimePickerTime.Value = da.Target;
+                this.TextBoxFormat.Text = da.TimeSpanFormat;
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

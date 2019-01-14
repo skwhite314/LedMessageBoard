@@ -62,25 +62,26 @@ namespace LedMessageBoard
 
             this.CheckedListBoxActiveDisplays.Items.Clear();
 
-            foreach (var p in this.configurationPanels)
-            {
-                var isActive = activeDisplays != null && activeDisplays.Contains(p.DisplayAdapter.Title);
+            //foreach (var p in this.configurationPanels)
+            //{
+            //    var isActive = activeDisplays != null && activeDisplays.Contains(p.DisplayAdapter.Title);
 
-                p.DisplayAdapter.Active = isActive;
-                this.CheckedListBoxActiveDisplays.Items.Add(p.DisplayAdapter.Title, isActive);
+            //    p.DisplayAdapter.Active = isActive;
+            //    this.CheckedListBoxActiveDisplays.Items.Add(p.DisplayAdapter.Title, isActive);
 
-                this.OnConfigurationApplied += p.ToControl().OnApply;
+            //    this.OnConfigurationApplied += p.ToControl().OnApply;
 
-                var tabPage = new TabPage(p.DisplayAdapter.Title);
-                tabPage.Controls.Add(p.ToControl());
+            //    var tabPage = new TabPage(p.DisplayAdapter.Title);
+            //    tabPage.Controls.Add(p.ToControl());
 
-                this.TabControlConfigurationPanels.TabPages.Add(tabPage);
-            }
+            //    this.TabControlConfigurationPanels.TabPages.Add(tabPage);
+            //}
         }
 
         public IDisplayAdapter[] DisplayAdapters
         {
-            get { return this.configurationPanels.Select(c => c.DisplayAdapter).ToArray(); }
+            get { return null; }
+            //get { return this.configurationPanels.Select(c => c.DisplayAdapter).ToArray(); }
         }
 
         public IDisplayAdapter[] ActiveDisplayAdapters
@@ -90,7 +91,8 @@ namespace LedMessageBoard
 
         public IConfigurationPanel[] ActiveConfigurationPanels
         {
-            get { return this.configurationPanels.Where(c => c.DisplayAdapter.Active).ToArray(); }
+            get { return null; }
+            //get { return this.configurationPanels.Where(c => c.DisplayAdapter.Active).ToArray(); }
         }
 
         private static IConfigurationPanel[] GetAllConfigurationPanels()
@@ -102,13 +104,8 @@ namespace LedMessageBoard
 
             var panels = panelTypes.Select(t => (IConfigurationPanel)Activator.CreateInstance(t)).ToArray();
 
-            foreach (var p in panels)
-            {
-                p.Initialize(false);
-            }
-
-            var result = panels.OrderBy(p => p.DisplayAdapter.Title).ToArray();
-            return result;
+            //var result = panels.OrderBy(p => p.DisplayAdapter.Title).ToArray();
+            return null;
         }
 
         private static void SetTrackBar(int value, TrackBar trackBar, Label label)
@@ -171,14 +168,14 @@ namespace LedMessageBoard
 
             foreach (var cp in this.configurationPanels)
             {
-                if (checkedItems.Contains(cp.DisplayAdapter.Title))
-                {
-                    cp.Initialize(true);
-                }
-                else
-                {
-                    cp.DisplayAdapter.Active = false;
-                }
+                //if (checkedItems.Contains(cp.DisplayAdapter.Title))
+                //{
+                //    cp.Initialize(true);
+                //}
+                //else
+                //{
+                //    cp.DisplayAdapter.Active = false;
+                //}
             }
 
             if (this.OnConfigurationUpdated == null)
@@ -200,11 +197,6 @@ namespace LedMessageBoard
         private void ButtonCancel_Click(object sender, EventArgs e)
         {
             LedMessageBoard.Properties.Settings.Default.Reload();
-
-            foreach (var cp in this.configurationPanels)
-            {
-                cp.ToControl().Reset();
-            }
 
             this.Visible = false;
         }

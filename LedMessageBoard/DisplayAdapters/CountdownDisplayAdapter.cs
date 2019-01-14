@@ -10,41 +10,34 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     /// Determines what time is left in the countdown and sends it to the appropriate view port
     /// </summary>
-    internal class CountdownDisplayAdapter : IDisplayAdapter
+    internal class CountdownDisplayAdapter : DisplayAdapter
     {
-        private DateTime targetDateTime;
+        public DateTime Target { get; private set; }
 
-        private string timeSpanFormat;
-
-        private TimeSpan displayStatic;
+        public string TimeSpanFormat { get; private set; }
 
         private DateTime displayStarted;
 
-        public CountdownDisplayAdapter(DateTime targetDateTime, string timeSpanFormat, TimeSpan displayStatic)
+        public CountdownDisplayAdapter(DateTime targetDateTime, string timeSpanFormat, string title)
         {
-            this.targetDateTime = targetDateTime;
-            this.timeSpanFormat = timeSpanFormat;
+            this.Target = targetDateTime;
+            this.TimeSpanFormat = timeSpanFormat;
+            this.Title = title;
+
+            this.displayStarted = DateTime.Now;
 
             var message = this.GetMessage();
 
             this.ViewPort = ViewPortFactory.GetViewPort(message);
-
-            this.displayStatic = displayStatic;
-
-            this.displayStarted = DateTime.Now;
         }
 
-        public string Title { get { return LedMessageBoard.Properties.Resources.CountdownTitle; } }
-
-        public bool Active { get; set; }
-
-        public bool DisplayComplete
+        public override bool DisplayComplete
         {
             get
             {
                 if (this.ViewPort is StaticViewPort)
                 {
-                    return DateTime.Now - this.displayStarted > this.displayStatic;
+                    return DateTime.Now - this.displayStarted > StaticDisplayDuration;
                 }
                 else if (this.ViewPort is ScrollingViewPort)
                 {
@@ -55,14 +48,12 @@ namespace LedMessageBoard.DisplayAdapters
             }
         }
 
-        public ViewPort ViewPort { get; private set; }
-
-        public void Draw(HidDevice device, byte brightness)
+        public override void Draw(HidDevice device, byte brightness)
         {
             this.ViewPort.DisplayString(device, brightness);
         }
 
-        public void Reset()
+        public override void Reset()
         {
             this.ViewPort = ViewPortFactory.GetViewPort(this.GetMessage());
 
@@ -74,9 +65,9 @@ namespace LedMessageBoard.DisplayAdapters
 
         private string GetMessage()
         {
-            var timespan = DateTime.Now < this.targetDateTime ? this.targetDateTime - DateTime.Now : new TimeSpan(0);
+            var timespan = DateTime.Now < this.Target ? this.Target - DateTime.Now : new TimeSpan(0);
 
-            return timespan.ToString(this.timeSpanFormat);
+            return timespan.ToString(this.TimeSpanFormat);
         }
     }
 }

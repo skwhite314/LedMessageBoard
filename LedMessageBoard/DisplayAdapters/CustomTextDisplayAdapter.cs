@@ -10,36 +10,28 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     /// Sends the custom text to the appropriate view port 
     /// </summary>
-    internal class CustomTextDisplayAdapter : IDisplayAdapter
+    internal class CustomTextDisplayAdapter : DisplayAdapter
     {
-        private TimeSpan displayStatic;
+        public string Message { get; private set; }
 
         private DateTime displayStarted;
 
-        private string message;
-
-        public CustomTextDisplayAdapter(string message, TimeSpan displayStatic)
+        public CustomTextDisplayAdapter(string message, string title)
         {
-            this.message = message;
-            this.displayStatic = displayStatic;
+            this.Message = message;
+            this.Title = title;
 
-            this.ViewPort = ViewPortFactory.GetViewPort(this.message);
+            this.ViewPort = ViewPortFactory.GetViewPort(this.Message);
             this.displayStarted = DateTime.Now;
         }
 
-        public string Title { get { return LedMessageBoard.Properties.Resources.CustomTextTitle; } }
-
-        public bool Active { get; set; }
-
-        public ViewPort ViewPort { get; private set; }
-
-        public bool DisplayComplete
+        public override bool DisplayComplete
         {
             get
             {
                 if (this.ViewPort is StaticViewPort)
                 {
-                    return DateTime.Now - this.displayStarted > this.displayStatic;
+                    return DateTime.Now - this.displayStarted > StaticDisplayDuration;
                 }
                 else if (this.ViewPort is ScrollingViewPort)
                 {
@@ -50,9 +42,9 @@ namespace LedMessageBoard.DisplayAdapters
             }
         }
 
-        public void Reset()
+        public override void Reset()
         {
-            this.ViewPort = ViewPortFactory.GetViewPort(this.message);
+            this.ViewPort = ViewPortFactory.GetViewPort(this.Message);
 
             if (this.ViewPort is StaticViewPort)
             {
@@ -60,9 +52,13 @@ namespace LedMessageBoard.DisplayAdapters
             }
         }
 
-        public void Draw(HidDevice device, byte brightness)
+        #region Overridden Methods
+
+        public override void Draw(HidDevice device, byte brightness)
         {
             this.ViewPort.DisplayString(device, brightness);
         }
+
+        #endregion
     }
 }

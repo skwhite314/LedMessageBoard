@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LedMessageBoard.DisplayAdapters;
+using LedMessageBoard.Exceptions;
 
 namespace LedMessageBoard.ConfigurationPanels
 {
@@ -19,17 +20,43 @@ namespace LedMessageBoard.ConfigurationPanels
         public TimeConfigurationPanel()
         {
             InitializeComponent();
-
-            this.Reset();
         }
 
-        public IDisplayAdapter DisplayAdapter { get; private set; }
-
-        public void Initialize(bool makeActive)
+        /// <summary>
+        /// Creates a display adapter based on the entered values
+        /// </summary>
+        /// <exception cref="ConfigurationException"/>
+        /// <returns>A countdown display adapter</returns>
+        public IDisplayAdapter CreateDisplayAdapter()
         {
-            var timespan = new TimeSpan(0, 0, LedMessageBoard.Properties.Settings.Default.Global_StaticDisplayDuration);
-            this.DisplayAdapter = new TimeDisplayAdapter(LedMessageBoard.Properties.Settings.Default.TimeConfigurationPanel_Format, timespan);
-            this.DisplayAdapter.Active = makeActive;
+            if (string.IsNullOrWhiteSpace(this.TextBoxTitle.Text))
+            {
+                throw new ConfigurationException("A display title is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(this.TextBoxTimeFormat.Text))
+            {
+                throw new ConfigurationException("A time format is required.");
+            }
+
+            try
+            {
+                DateTime.Now.ToString(this.TextBoxTimeFormat.Text);
+            }
+            catch (Exception ex)
+            {
+                var message = string.Format("Invalid DateTime format: {0}", ex.Message);
+                throw new ConfigurationException(message, ex);
+            }
+
+            var result = new TimeDisplayAdapter(this.TextBoxTimeFormat.Text, this.TextBoxTitle.Text);
+
+            return result;
+        }
+
+        public string GetDisplayAdapterType()
+        {
+            return LedMessageBoard.Properties.Resources.TimeDisplayType;
         }
 
         public ConfigurationPanel ToControl()
@@ -37,26 +64,21 @@ namespace LedMessageBoard.ConfigurationPanels
             return this;
         }
 
-        public override void Reset()
+        #region Overridden Methods
+
+        public override bool PopulateFromDisplayAdapter(IDisplayAdapter displayAdapter)
         {
-            this.TextBoxTimeFormat.Text = LedMessageBoard.Properties.Settings.Default.TimeConfigurationPanel_Format;
+            if (displayAdapter is TimeDisplayAdapter da)
+            {
+                this.TextBoxTitle.Text = da.Title;
+                this.TextBoxTimeFormat.Text = da.TimeFormat;
+
+                return true;
+            }
+
+            return false;
         }
 
-        public void OnApply(object sender, CancelEventArgs e)
-        {
-            try
-            {
-                DateTime.Now.ToString(this.TextBoxTimeFormat.Text);
-
-                LedMessageBoard.Properties.Settings.Default.TimeConfigurationPanel_Format = this.TextBoxTimeFormat.Text;
-                LedMessageBoard.Properties.Settings.Default.Save();
-            }
-            catch (Exception ex)
-            {
-                var message = string.Format("Invalid DateTime format: {0}", ex.Message);
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
+        #endregion
     }
 }

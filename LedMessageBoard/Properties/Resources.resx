@@ -123,10 +123,10 @@
   <data name="ConnectMenuItem" xml:space="preserve">
     <value>Connect</value>
   </data>
-  <data name="CountdownTitle" xml:space="preserve">
+  <data name="CountdownDisplayType" xml:space="preserve">
     <value>Countdown</value>
   </data>
-  <data name="CustomTextTitle" xml:space="preserve">
+  <data name="CustomTextDisplayType" xml:space="preserve">
     <value>Custom Text</value>
   </data>
   <data name="ExitMenuItem" xml:space="preserve">
@@ -136,7 +136,7 @@
   <data name="LMB" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LMB.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="TimeTitle" xml:space="preserve">
+  <data name="TimeDisplayType" xml:space="preserve">
     <value>Time</value>
   </data>
   <data name="TrayText" xml:space="preserve">

@@ -35,7 +35,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Location = new System.Drawing.Point(3, 36);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(31, 13);
             this.label1.TabIndex = 0;
@@ -45,7 +45,7 @@
             // 
             this.TextBoxMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TextBoxMessage.Location = new System.Drawing.Point(6, 16);
+            this.TextBoxMessage.Location = new System.Drawing.Point(6, 52);
             this.TextBoxMessage.MaxLength = 1000;
             this.TextBoxMessage.Name = "TextBoxMessage";
             this.TextBoxMessage.Size = new System.Drawing.Size(394, 20);
@@ -60,6 +60,9 @@
             this.Controls.Add(this.label1);
             this.Name = "CustomTextConfigurationPanel";
             this.Size = new System.Drawing.Size(408, 75);
+            this.Controls.SetChildIndex(this.label1, 0);
+            this.Controls.SetChildIndex(this.TextBoxMessage, 0);
+            this.Controls.SetChildIndex(this.TextBoxTitle, 0);
             this.ResumeLayout(false);
             this.PerformLayout();
 
