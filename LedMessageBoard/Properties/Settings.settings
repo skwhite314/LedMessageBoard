@@ -11,26 +11,20 @@
     <Setting Name="Global_DefaultViewPortMessage" Type="System.String" Scope="User">
       <Value Profile="(Default)">Message not found</Value>
     </Setting>
-    <Setting Name="Global_Brightness" Type="System.Byte" Scope="User">
+    <Setting Name="Global_Brightness" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
-    </Setting>
-    <Setting Name="CustomTextConfigurationPanel_Message" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Hello World!</Value>
-    </Setting>
-    <Setting Name="Global_ActiveDisplays" Type="System.Collections.Specialized.StringCollection" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="TimeConfigurationPanel_Format" Type="System.String" Scope="User">
-      <Value Profile="(Default)">h:mm tt</Value>
-    </Setting>
-    <Setting Name="CountdownConfigurationPanel_Target" Type="System.DateTime" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="CountdownConfigurationPanel_Format" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c</Value>
     </Setting>
     <Setting Name="Global_StaticDisplayDuration" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="CountdownDisplayAdapters" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CustomTextDisplayAdapters" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TimeDisplayAdapters" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

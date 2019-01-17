@@ -10,7 +10,7 @@ namespace LedMessageBoard
     /// <summary>
     /// Parent class for all view ports. Handles encoding the message in such a way as to display on the message board
     /// </summary>
-    internal abstract class ViewPort
+    public abstract class ViewPort
     {
         public const int MaxWidth = 21;
         public const int Height = 7;

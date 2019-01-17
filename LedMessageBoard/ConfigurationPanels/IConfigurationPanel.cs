@@ -14,8 +14,9 @@ namespace LedMessageBoard.ConfigurationPanels
     internal interface IConfigurationPanel
     {
         /// <summary>
-        /// The adapter that coordinates the displaying of what the user configured
+        /// Creates a display adapter based on the entered values
         /// </summary>
+        /// <exception cref="ConfigurationException"/>
         IDisplayAdapter CreateDisplayAdapter();
 
         /// <summary>

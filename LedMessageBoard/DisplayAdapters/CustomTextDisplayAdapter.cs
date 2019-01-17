@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using HidLibrary;
 
 namespace LedMessageBoard.DisplayAdapters
@@ -10,19 +13,17 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     /// Sends the custom text to the appropriate view port 
     /// </summary>
-    internal class CustomTextDisplayAdapter : DisplayAdapter
+    public class CustomTextDisplayAdapter : DisplayAdapter
     {
-        public string Message { get; private set; }
+        public string Message { get; set; }
 
         private DateTime displayStarted;
 
+        public CustomTextDisplayAdapter() { }
+
         public CustomTextDisplayAdapter(string message, string title)
         {
-            this.Message = message;
-            this.Title = title;
-
-            this.ViewPort = ViewPortFactory.GetViewPort(this.Message);
-            this.displayStarted = DateTime.Now;
+            this.Initialize(message, title);
         }
 
         public override bool DisplayComplete
@@ -59,6 +60,32 @@ namespace LedMessageBoard.DisplayAdapters
             this.ViewPort.DisplayString(device, brightness);
         }
 
+        public override string Serialize()
+        {
+            var sb = new StringBuilder();
+
+            AppendForSerialize(sb, base.Serialize());
+            AppendForSerialize(sb, this.Message);
+
+            return sb.ToString();
+        }
+
+        public override void PopulateFromString(string s)
+        {
+            var items = base.PopulateBaseFromString(s);
+
+            this.Message = items[0];
+        }
+
         #endregion
+
+        private void Initialize(string message, string title)
+        {
+            this.Message = message;
+            this.Title = title;
+
+            this.ViewPort = ViewPortFactory.GetViewPort(this.Message);
+            this.displayStarted = DateTime.Now;
+        }
     }
 }

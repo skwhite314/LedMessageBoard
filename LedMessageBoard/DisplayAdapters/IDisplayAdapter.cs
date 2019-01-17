@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using HidLibrary;
 
 namespace LedMessageBoard.DisplayAdapters
@@ -10,7 +11,7 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     /// Interface for all display adapters (classes that determine what view port to use and what data to display)
     /// </summary>
-    internal interface IDisplayAdapter
+    public interface IDisplayAdapter
     {
         /// <summary>
         /// The title of the display
@@ -40,5 +41,9 @@ namespace LedMessageBoard.DisplayAdapters
         /// <param name="device">The device to draw to</param>
         /// <param name="brightness">The brightness to use</param>
         void Draw(HidDevice device, byte brightness);
+
+        string Serialize();
+
+        void PopulateFromString(string s);
     }
 }

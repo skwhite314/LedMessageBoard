@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using HidLibrary;
 
 namespace LedMessageBoard.DisplayAdapters
@@ -10,13 +13,15 @@ namespace LedMessageBoard.DisplayAdapters
     /// <summary>
     ///Sends the current time in the customized format to the appropriate view port
     /// </summary>
-    internal class TimeDisplayAdapter : DisplayAdapter
+    public class TimeDisplayAdapter : DisplayAdapter
     {
-        public string TimeFormat { get; private set; }
+        public string TimeFormat { get; set; }
 
         private DateTime? timeToDisplay;
 
         private DateTime displayStart;
+
+        public TimeDisplayAdapter() { }
 
         public TimeDisplayAdapter(string timeFormat, string title)
         {
@@ -72,6 +77,36 @@ namespace LedMessageBoard.DisplayAdapters
         public override void Reset()
         {
             this.timeToDisplay = null;
+            this.displayStart = DateTime.Now;
+        }
+
+        public override string Serialize()
+        {
+            var sb = new StringBuilder();
+
+            AppendForSerialize(sb, base.Serialize());
+            AppendForSerialize(sb, this.TimeFormat);
+
+            return sb.ToString();
+        }
+
+        public override void PopulateFromString(string s)
+        {
+            var items = base.PopulateBaseFromString(s);
+
+            this.TimeFormat = items[0];
+        }
+
+        private void Initialize(string timeFormat, string title)
+        {
+            this.Title = title;
+
+            this.TimeFormat = timeFormat;
+
+            this.timeToDisplay = null;
+
+            this.ViewPort = ViewPortFactory.GetViewPort(DateTime.Now.ToString(this.TimeFormat));
+
             this.displayStart = DateTime.Now;
         }
     }

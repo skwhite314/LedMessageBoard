@@ -220,6 +220,7 @@
             this.ButtonApply.TabIndex = 21;
             this.ButtonApply.Text = "Apply";
             this.ButtonApply.UseVisualStyleBackColor = true;
+            this.ButtonApply.Click += new System.EventHandler(this.ButtonApply_Click);
             // 
             // ButtonClose
             // 
@@ -229,6 +230,7 @@
             this.ButtonClose.TabIndex = 26;
             this.ButtonClose.Text = "Close";
             this.ButtonClose.UseVisualStyleBackColor = true;
+            this.ButtonClose.Click += new System.EventHandler(this.ButtonClose_Click);
             // 
             // ButtonNewDisplay
             // 
@@ -238,6 +240,7 @@
             this.ButtonNewDisplay.TabIndex = 27;
             this.ButtonNewDisplay.Text = "New Display...";
             this.ButtonNewDisplay.UseVisualStyleBackColor = true;
+            this.ButtonNewDisplay.Click += new System.EventHandler(this.ButtonNewDisplay_Click);
             // 
             // ButtonMoveUp
             // 
@@ -247,6 +250,7 @@
             this.ButtonMoveUp.TabIndex = 28;
             this.ButtonMoveUp.Text = "Move Up";
             this.ButtonMoveUp.UseVisualStyleBackColor = true;
+            this.ButtonMoveUp.Click += new System.EventHandler(this.ButtonMoveUp_Click);
             // 
             // ButtonMoveDown
             // 
@@ -256,6 +260,7 @@
             this.ButtonMoveDown.TabIndex = 29;
             this.ButtonMoveDown.Text = "Move Down";
             this.ButtonMoveDown.UseVisualStyleBackColor = true;
+            this.ButtonMoveDown.Click += new System.EventHandler(this.ButtonMoveDown_Click);
             // 
             // ButtonDelete
             // 
@@ -265,6 +270,7 @@
             this.ButtonDelete.TabIndex = 30;
             this.ButtonDelete.Text = "Delete...";
             this.ButtonDelete.UseVisualStyleBackColor = true;
+            this.ButtonDelete.Click += new System.EventHandler(this.ButtonDelete_Click);
             // 
             // BoardConfiguration
             // 

@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,12 +53,6 @@
     </Compile>
     <Compile Include="BoardConfiguration.Designer.cs">
       <DependentUpon>BoardConfiguration.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ConfigurationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigurationForm.Designer.cs">
-      <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigurationPanels\ConfigurationPanel.cs">
       <SubType>UserControl</SubType>
@@ -105,15 +100,13 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ScrollingViewPort.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="StaticViewPort.cs" />
     <Compile Include="TrayApplication.cs" />
     <Compile Include="ViewPort.cs" />
     <Compile Include="ViewPortFactory.cs" />
     <EmbeddedResource Include="BoardConfiguration.resx">
       <DependentUpon>BoardConfiguration.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ConfigurationForm.resx">
-      <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ConfigurationPanels\ConfigurationPanel.resx">
       <DependentUpon>ConfigurationPanel.cs</DependentUpon>
