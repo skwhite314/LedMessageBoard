@@ -41,9 +41,5 @@ namespace LedMessageBoard.DisplayAdapters
         /// <param name="device">The device to draw to</param>
         /// <param name="brightness">The brightness to use</param>
         void Draw(HidDevice device, byte brightness);
-
-        string Serialize();
-
-        void PopulateFromString(string s);
     }
 }

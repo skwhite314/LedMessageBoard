@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using HidLibrary;
 using LedMessageBoard.DisplayAdapters;
+using Newtonsoft.Json;
 
 namespace LedMessageBoard
 {
@@ -163,6 +165,7 @@ namespace LedMessageBoard
 
         private void OnConfigure(object sender, EventArgs e)
         {
+            this.boardConfiguration.UpdateDisplayAdapters(this.adapters);
             this.boardConfiguration.Visible = true;
         }
 
@@ -179,6 +182,8 @@ namespace LedMessageBoard
                     return;
                 }
 
+                this.WriteDisplayAdapterConfigurations();
+
                 IDisplayAdapter currentAdapter = this.adapterIndex < this.adapters.Length ? this.adapters[this.adapterIndex] : null;
 
                 if (currentAdapter != null) currentAdapter.Reset();
@@ -189,21 +194,64 @@ namespace LedMessageBoard
 
                 this.adapters = newAdapterList;
 
-                this.WriteDisplayAdapterConfigurations();
-
                 this.InitializeSystem(false, false);
             }
         }
 
         private void ReadDisplayAdapterConfigurations()
         {
-            var cdaTuples = SerializeHelper<CountdownDisplayAdapter>.ReadFromSettings();
-            var ctdaTuples = SerializeHelper<CustomTextDisplayAdapter>.ReadFromSettings();
-            var tdaTuples = SerializeHelper<TimeDisplayAdapter>.ReadFromSettings();
+            var datypes = GetDisplayAdapterTypes();
 
-            var displayAdapters = cdaTuples.Union(ctdaTuples).Union(tdaTuples).OrderBy(t => t.Item1).Select(t => t.Item2).ToArray();
+            var method = GetDeserializeMethod();
 
-            this.adapters = displayAdapters;
+            var dict = new Dictionary<Type, IDictionary<int, IDisplayAdapter>>(datypes.Length);
+
+            foreach (var datype in datypes)
+            {
+                var propertyName = GenerateDisplayAdapterPropertyName(datype);
+
+                if (LedMessageBoard.Properties.Settings.Default.Properties[propertyName] == null)
+                {
+                    var prop = CreateProperty(propertyName);
+
+                    LedMessageBoard.Properties.Settings.Default.Properties.Add(prop);
+
+                    LedMessageBoard.Properties.Settings.Default.Reload();
+                }
+
+                var json = LedMessageBoard.Properties.Settings.Default[propertyName].ToString().Trim();
+
+                if (string.IsNullOrWhiteSpace(json)) continue;
+
+                var dictType = typeof(Dictionary<,>);
+
+                var genDictType = dictType.MakeGenericType(typeof(int), datype);
+
+                var deserializeMethod = method.MakeGenericMethod(genDictType);
+
+                var obj = deserializeMethod.Invoke(null, new[] { json });
+
+                var indexMethod = genDictType.GetMethod("get_Item");
+
+                var property = genDictType.GetProperty("Keys");
+
+                var keys = (ICollection<int>)property.GetValue(obj);
+
+                var innerDict = new Dictionary<int, IDisplayAdapter>(keys.Count);
+
+                foreach (var key in keys)
+                {
+                    var da = (IDisplayAdapter)indexMethod.Invoke(obj, new object[] { key });
+
+                    innerDict.Add(key, da);
+                }
+
+                dict.Add(datype, innerDict);
+            }
+
+            var daArray = dict.SelectMany(kvp => kvp.Value).OrderBy(v => v.Key).Select(v => v.Value).ToArray();
+
+            this.adapters = daArray;
 
             this.boardConfiguration.Brightness = LedMessageBoard.Properties.Settings.Default.Global_Brightness;
             this.boardConfiguration.RefreshRate = LedMessageBoard.Properties.Settings.Default.Global_RefreshRate;
@@ -217,20 +265,31 @@ namespace LedMessageBoard
 
         private void WriteDisplayAdapterConfigurations()
         {
-            var tupleList = new List<Tuple<int, IDisplayAdapter>>(this.adapters.Length);
+            var tuples = new Tuple<int, IDisplayAdapter>[this.adapters.Length];
 
-            for (var i = 0; i < this.adapters.Length; i++)
+            for (var i = 0; i < this.adapters.Length; i++) tuples[i] = new Tuple<int, IDisplayAdapter>(i, this.adapters[i]);
+
+            var dict = FilterDisplayAdapters(tuples);
+
+            foreach (var key in dict.Keys)
             {
-                tupleList.Add(new Tuple<int, IDisplayAdapter>(i, this.adapters[i]));
+                var propertyName = GenerateDisplayAdapterPropertyName(key);
+
+                var prop = LedMessageBoard.Properties.Settings.Default.Properties[propertyName];
+
+                if (prop == null)
+                {
+                    prop = CreateProperty(propertyName);
+
+                    LedMessageBoard.Properties.Settings.Default.Properties.Add(prop);
+
+                    LedMessageBoard.Properties.Settings.Default.Reload();
+                }
+
+                var json = JsonConvert.SerializeObject(dict[key]);
+
+                LedMessageBoard.Properties.Settings.Default[propertyName] = json;
             }
-
-            var tupleArray = tupleList.ToArray();
-
-            var cdaCount = SerializeHelper<CountdownDisplayAdapter>.WriteToSettings(tupleArray);
-            var ctdaCount = SerializeHelper<CustomTextDisplayAdapter>.WriteToSettings(tupleArray);
-            var tdaCount = SerializeHelper<TimeDisplayAdapter>.WriteToSettings(tupleArray);
-
-            var total = cdaCount + ctdaCount + tdaCount;
 
             LedMessageBoard.Properties.Settings.Default.Global_Brightness = this.boardConfiguration.Brightness;
             LedMessageBoard.Properties.Settings.Default.Global_RefreshRate = this.boardConfiguration.RefreshRate;
@@ -238,12 +297,6 @@ namespace LedMessageBoard
             LedMessageBoard.Properties.Settings.Default.Global_StaticDisplayDuration = this.boardConfiguration.StaticDisplayDuration;
 
             LedMessageBoard.Properties.Settings.Default.Save();
-
-            if (total < tupleArray.Length)
-            {
-                var message = string.Format("{0} display adapters not saved.", tupleArray.Length - total);
-                MessageBox.Show(message);
-            }
         }
 
         private void DeviceRemovedHandler()
@@ -252,149 +305,58 @@ namespace LedMessageBoard
             this.device = null;
         }
 
-        public class SerializeHelper<T> where T : class, IDisplayAdapter, new()
+        private static MethodInfo GetDeserializeMethod()
         {
-            private static readonly Type CountdownDisplayAdapterType = typeof(CountdownDisplayAdapter);
-            private static readonly Type CustomTextDisplayAdapterType = typeof(CustomTextDisplayAdapter);
-            private static readonly Type TimeDisplayAdapterType = typeof(TimeDisplayAdapter);
+            var method = typeof(JsonConvert).GetMember("DeserializeObject", MemberTypes.Method, BindingFlags.Static | BindingFlags.Public)
+                .Cast<MethodInfo>()
+                .First(mi => mi.ContainsGenericParameters);
 
-            public static int WriteToSettings(Tuple<int, IDisplayAdapter>[] tuples)
+            return method;
+        }
+
+        private static SettingsProperty CreateProperty(string propertyName)
+        {
+            var prop = new SettingsProperty(propertyName);
+            prop.DefaultValue = string.Empty;
+            prop.IsReadOnly = false;
+            prop.PropertyType = typeof(string);
+            prop.Provider = LedMessageBoard.Properties.Settings.Default.Providers["LocalFileSettingsProvider"];
+            prop.Attributes.Add(typeof(System.Configuration.UserScopedSettingAttribute), new System.Configuration.UserScopedSettingAttribute());
+
+            return prop;
+        }
+
+        private static IDictionary<Type, IDictionary<int, IDisplayAdapter>> FilterDisplayAdapters(Tuple<int, IDisplayAdapter>[] tuples)
+        {
+            var datypes = GetDisplayAdapterTypes();
+
+            var result = new Dictionary<Type, IDictionary<int, IDisplayAdapter>>(datypes.Length);
+
+            foreach (var datype in datypes)
             {
-                var sharray = Filter(tuples).Select(sh => sh.ToString()).ToArray();
+                IDictionary<int, IDisplayAdapter> dict = tuples.Where(t => t.Item2.GetType() == datype).ToDictionary(t => t.Item1, t => t.Item2);
 
-                var jsonSer = new DataContractJsonSerializer(typeof(string[]));
-
-                using (var stream = new MemoryStream())
-                {
-                    jsonSer.WriteObject(stream, sharray);
-
-                    stream.Position = 0;
-
-                    using (var sr = new StreamReader(stream))
-                    {
-                        var result = sr.ReadToEnd();
-
-                        LedMessageBoard.Properties.Settings.Default[SettingsName] = result;
-
-                        return sharray.Length;
-                    }
-                }
+                result.Add(datype, dict);
             }
 
-            public static Tuple<int, IDisplayAdapter>[] ReadFromSettings()
-            {
-                var jsonSer = new DataContractJsonSerializer(typeof(string[]));
+            return result;
+        }
 
-                var s = LedMessageBoard.Properties.Settings.Default[SettingsName].ToString();
+        private static Type[] GetDisplayAdapterTypes()
+        {
+            var datypes = Assembly.GetAssembly(typeof(IDisplayAdapter))
+                            .GetTypes()
+                            .Where(t => t.IsClass && !t.IsAbstract && typeof(IDisplayAdapter).IsAssignableFrom(t))
+                            .ToArray();
 
-                if (string.IsNullOrWhiteSpace(s)) return new Tuple<int, IDisplayAdapter>[0];
+            return datypes;
+        }
 
-                try
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        using (var sw = new StreamWriter(stream))
-                        {
-                            sw.Write(s);
+        private static string GenerateDisplayAdapterPropertyName(Type type)
+        {
+            var result = string.Format("DisplayAdapters_{0}", type.Name);
 
-                            stream.Position = 0;
-
-                            var stringArray = (string[])jsonSer.ReadObject(stream);
-
-                            var result = stringArray.Select(sa =>
-                            {
-                                var sh = new SerializeHelper<T>();
-                                sh.PopulateFromString(sa);
-
-                                var t = new Tuple<int, IDisplayAdapter>(sh.Index, sh.DisplayAdapter);
-                                return t;
-                            }).ToArray();
-
-                            foreach (var t in result) t.Item2.Reset();
-
-                            return result;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    return new Tuple<int, IDisplayAdapter>[0];
-                }
-            }
-
-            private static string SettingsName
-            {
-                get
-                {
-                    var t = typeof(T);
-
-                    if (t == CountdownDisplayAdapterType && !t.IsSubclassOf(CountdownDisplayAdapterType))
-                    {
-                        return "CountdownDisplayAdapters";
-                    }
-
-                    if (t == CustomTextDisplayAdapterType && !t.IsSubclassOf(CustomTextDisplayAdapterType))
-                    {
-                        return "CustomTextDisplayAdapters";
-                    }
-
-                    if (t == TimeDisplayAdapterType && !t.IsSubclassOf(TimeDisplayAdapterType))
-                    {
-                        return "TimeDisplayAdapters";
-                    }
-
-                    throw new NotImplementedException(string.Format("SettingsName for type {0} not implemented.", t.FullName));
-                }
-            }
-
-            private static SerializeHelper<T>[] Filter(Tuple<int, IDisplayAdapter>[] tuples)
-            {
-                var type = typeof(T);
-
-                var result = tuples
-                                .Where(t => t.Item2.GetType() == type)
-                                .Select(t => new SerializeHelper<T>(t.Item1, (T)t.Item2))
-                                .ToArray();
-
-                return result;
-            }
-
-            public T DisplayAdapter { get; set; }
-
-            public int Index { get; set; }
-
-            public SerializeHelper() { }
-
-            public SerializeHelper(int index, T displayAdapter)
-            {
-                this.DisplayAdapter = displayAdapter;
-                this.Index = index;
-            }
-
-            public override string ToString()
-            {
-                var da = this.DisplayAdapter.Serialize();
-
-                var result = string.Format("{0},{1}", this.Index, da);
-
-                return result;
-            }
-
-            private void PopulateFromString(string s)
-            {
-                var index = s.IndexOf(',');
-
-                var s1 = s.Substring(0, index);
-                var s2 = s.Substring(index + 1);
-
-                this.Index = int.Parse(s1);
-
-                this.DisplayAdapter = new T();
-
-                this.DisplayAdapter.PopulateFromString(s2);
-            }
+            return result;
         }
     }
 }

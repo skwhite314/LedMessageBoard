@@ -1,6 +1,6 @@
 ﻿using LedMessageBoard.ConfigurationPanels;
 using LedMessageBoard.DisplayAdapters;
-using LedMessageBoard.DisplayModification;
+using LedMessageBoard.DisplayAdapterConfiguration;
 using LedMessageBoard.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,8 @@ namespace LedMessageBoard
 {
     internal partial class BoardConfiguration : Form
     {
+        private ContextMenu configContextMenu;
+
         #region Delegates for handling multithreading
 
         public delegate void ConfigurationUpdateHandler(object sender, EventArgs e);
@@ -126,6 +128,10 @@ namespace LedMessageBoard
                     this.CheckedListBoxActiveDisplays.SetItemChecked(i, da.Active);
             }
 
+            var configureMenuItem = new MenuItem("Configure", this.MenuItemConfigure_Click);
+
+            this.configContextMenu = new ContextMenu(new[] { configureMenuItem });
+
             this.SetButtonEnableds();
         }
 
@@ -171,6 +177,15 @@ namespace LedMessageBoard
 
         private void CheckedListBoxActiveDisplays_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (this.CheckedListBoxActiveDisplays.SelectedItem == null)
+            {
+                this.CheckedListBoxActiveDisplays.ContextMenu = null;
+            }
+            else if (this.CheckedListBoxActiveDisplays.ContextMenu == null)
+            {
+                this.CheckedListBoxActiveDisplays.ContextMenu = this.configContextMenu;
+            }
+
             this.SetButtonEnableds();
         }
 
@@ -220,7 +235,7 @@ namespace LedMessageBoard
 
                     return;
                 }
-                catch (ConfigurationException ex)
+                catch (DisplayConfigurationException ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
@@ -259,6 +274,49 @@ namespace LedMessageBoard
             if (this.OnConfigurationUpdated != null) this.OnConfigurationUpdated(sender, e);
 
             this.Visible = false;
+        }
+
+        private void MenuItemConfigure_Click(object sender, EventArgs e)
+        {
+            var displayAdapter = (IDisplayAdapter)this.CheckedListBoxActiveDisplays.SelectedItem;
+
+            var configureDisplayDialog = new ConfigureDisplayDialog(displayAdapter);
+
+            while (true)
+            {
+                var dialogResult = configureDisplayDialog.ShowDialog(this);
+
+                if (dialogResult == DialogResult.Cancel)
+                {
+                    configureDisplayDialog.Close();
+                    return;
+                }
+
+                try
+                {
+                    var da = configureDisplayDialog.GetDisplayAdapter();
+                    da.Active = displayAdapter.Active;
+
+                    configureDisplayDialog.Close();
+
+                    var index = this.CheckedListBoxActiveDisplays.SelectedIndex;
+
+                    this.CheckedListBoxActiveDisplays.Items.Remove(displayAdapter);
+
+                    this.CheckedListBoxActiveDisplays.Items.Insert(index, da);
+                    this.CheckedListBoxActiveDisplays.SetItemChecked(index, da.Active);
+
+                    this.CheckedListBoxActiveDisplays.SelectedItem = da;
+
+                    this.OnConfigurationUpdated?.Invoke(sender, e);
+
+                    return;
+                }
+                catch (DisplayConfigurationException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
 
         #endregion

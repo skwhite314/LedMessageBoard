@@ -26,5 +26,7 @@ namespace LedMessageBoard.ConfigurationPanels
         ConfigurationPanel ToControl();
 
         string GetDisplayAdapterType();
+
+        bool PopulateFromDisplayAdapter(IDisplayAdapter displayAdapter);
     }
 }

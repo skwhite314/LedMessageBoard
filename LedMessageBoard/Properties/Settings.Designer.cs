@@ -82,41 +82,5 @@ namespace LedMessageBoard.Properties {
                 this["Global_StaticDisplayDuration"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string CountdownDisplayAdapters {
-            get {
-                return ((string)(this["CountdownDisplayAdapters"]));
-            }
-            set {
-                this["CountdownDisplayAdapters"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string CustomTextDisplayAdapters {
-            get {
-                return ((string)(this["CustomTextDisplayAdapters"]));
-            }
-            set {
-                this["CustomTextDisplayAdapters"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string TimeDisplayAdapters {
-            get {
-                return ((string)(this["TimeDisplayAdapters"]));
-            }
-            set {
-                this["TimeDisplayAdapters"] = value;
-            }
-        }
     }
 }

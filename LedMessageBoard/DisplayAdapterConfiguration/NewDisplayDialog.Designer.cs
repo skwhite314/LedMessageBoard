@@ -1,4 +1,4 @@
-﻿namespace LedMessageBoard.DisplayModification
+﻿namespace LedMessageBoard.DisplayAdapterConfiguration
 {
     partial class NewDisplayDialog
     {
@@ -108,6 +108,8 @@
             this.Controls.Add(this.ButtonOK);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "NewDisplayDialog";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Create New Display";
             this.ResumeLayout(false);

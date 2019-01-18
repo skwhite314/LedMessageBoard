@@ -80,23 +80,6 @@ namespace LedMessageBoard.DisplayAdapters
             this.displayStart = DateTime.Now;
         }
 
-        public override string Serialize()
-        {
-            var sb = new StringBuilder();
-
-            AppendForSerialize(sb, base.Serialize());
-            AppendForSerialize(sb, this.TimeFormat);
-
-            return sb.ToString();
-        }
-
-        public override void PopulateFromString(string s)
-        {
-            var items = base.PopulateBaseFromString(s);
-
-            this.TimeFormat = items[0];
-        }
-
         private void Initialize(string timeFormat, string title)
         {
             this.Title = title;

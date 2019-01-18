@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LedMessageBoard.DisplayModification
+namespace LedMessageBoard.DisplayAdapterConfiguration
 {
     internal partial class NewDisplayDialog : Form
     {

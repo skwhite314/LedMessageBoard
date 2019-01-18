@@ -25,13 +25,13 @@ namespace LedMessageBoard.ConfigurationPanels
         /// <summary>
         /// Creates a display adapter based on the entered values
         /// </summary>
-        /// <exception cref="ConfigurationException"/>
+        /// <exception cref="DisplayConfigurationException"/>
         /// <returns>A countdown display adapter</returns>
         public IDisplayAdapter CreateDisplayAdapter()
         {
             if (string.IsNullOrWhiteSpace(this.TextBoxTitle.Text))
             {
-                throw new ConfigurationException("A display title is required.");
+                throw new DisplayConfigurationException("A display title is required.");
             }
 
             var format = this.TextBoxFormat.Text;
@@ -46,7 +46,7 @@ namespace LedMessageBoard.ConfigurationPanels
             {
                 var message = string.Format("Invalid TimeSpan format: {0}", ex.Message);
 
-                throw new ConfigurationException(message, ex);
+                throw new DisplayConfigurationException(message, ex);
             }
 
             var date = this.DateTimePickerDate.Value;

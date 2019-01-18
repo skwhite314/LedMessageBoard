@@ -181,11 +181,9 @@
             // 
             // CheckedListBoxActiveDisplays
             // 
-            this.CheckedListBoxActiveDisplays.CheckOnClick = true;
             this.CheckedListBoxActiveDisplays.FormattingEnabled = true;
             this.CheckedListBoxActiveDisplays.HorizontalScrollbar = true;
             this.CheckedListBoxActiveDisplays.Location = new System.Drawing.Point(15, 285);
-            this.CheckedListBoxActiveDisplays.MultiColumn = true;
             this.CheckedListBoxActiveDisplays.Name = "CheckedListBoxActiveDisplays";
             this.CheckedListBoxActiveDisplays.Size = new System.Drawing.Size(317, 199);
             this.CheckedListBoxActiveDisplays.TabIndex = 21;

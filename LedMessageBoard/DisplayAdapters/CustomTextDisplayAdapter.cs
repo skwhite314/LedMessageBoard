@@ -60,23 +60,6 @@ namespace LedMessageBoard.DisplayAdapters
             this.ViewPort.DisplayString(device, brightness);
         }
 
-        public override string Serialize()
-        {
-            var sb = new StringBuilder();
-
-            AppendForSerialize(sb, base.Serialize());
-            AppendForSerialize(sb, this.Message);
-
-            return sb.ToString();
-        }
-
-        public override void PopulateFromString(string s)
-        {
-            var items = base.PopulateBaseFromString(s);
-
-            this.Message = items[0];
-        }
-
         #endregion
 
         private void Initialize(string message, string title)

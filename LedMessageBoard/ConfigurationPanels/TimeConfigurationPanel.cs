@@ -25,18 +25,18 @@ namespace LedMessageBoard.ConfigurationPanels
         /// <summary>
         /// Creates a display adapter based on the entered values
         /// </summary>
-        /// <exception cref="ConfigurationException"/>
+        /// <exception cref="DisplayConfigurationException"/>
         /// <returns>A countdown display adapter</returns>
         public IDisplayAdapter CreateDisplayAdapter()
         {
             if (string.IsNullOrWhiteSpace(this.TextBoxTitle.Text))
             {
-                throw new ConfigurationException("A display title is required.");
+                throw new DisplayConfigurationException("A display title is required.");
             }
 
             if (string.IsNullOrWhiteSpace(this.TextBoxTimeFormat.Text))
             {
-                throw new ConfigurationException("A time format is required.");
+                throw new DisplayConfigurationException("A time format is required.");
             }
 
             try
@@ -46,7 +46,7 @@ namespace LedMessageBoard.ConfigurationPanels
             catch (Exception ex)
             {
                 var message = string.Format("Invalid DateTime format: {0}", ex.Message);
-                throw new ConfigurationException(message, ex);
+                throw new DisplayConfigurationException(message, ex);
             }
 
             var result = new TimeDisplayAdapter(this.TextBoxTimeFormat.Text, this.TextBoxTitle.Text);

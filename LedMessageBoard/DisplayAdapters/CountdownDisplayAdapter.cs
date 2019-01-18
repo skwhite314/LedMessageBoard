@@ -80,24 +80,5 @@ namespace LedMessageBoard.DisplayAdapters
 
             return timespan.ToString(this.TimeSpanFormat);
         }
-
-        public override string Serialize()
-        {
-            var sb = new StringBuilder();
-
-            AppendForSerialize(sb, base.Serialize());
-            AppendForSerialize(sb, this.Target);
-            AppendForSerialize(sb, this.TimeSpanFormat);
-
-            return sb.ToString();
-        }
-
-        public override void PopulateFromString(string s)
-        {
-            var items = base.PopulateBaseFromString(s);
-
-            this.Target = DateTime.Parse(items[0]);
-            this.TimeSpanFormat = items[1];
-        }
     }
 }

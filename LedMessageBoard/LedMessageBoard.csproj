@@ -35,7 +35,11 @@
     <Reference Include="HidLibrary">
       <HintPath>..\Libs\HidLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
@@ -79,17 +83,23 @@
     <Compile Include="ConfigurationPanels\TimeConfigurationPanel.Designer.cs">
       <DependentUpon>TimeConfigurationPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="DisplayAdapterConfiguration\ConfigureDisplayDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DisplayAdapterConfiguration\ConfigureDisplayDialog.Designer.cs">
+      <DependentUpon>ConfigureDisplayDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="DisplayAdapters\CountdownDisplayAdapter.cs" />
     <Compile Include="DisplayAdapters\CustomTextDisplayAdapter.cs" />
     <Compile Include="DisplayAdapters\DisplayAdapter.cs" />
     <Compile Include="DisplayAdapters\IDisplayAdapter.cs" />
     <Compile Include="DisplayAdapters\TimeDisplayAdapter.cs" />
-    <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Exceptions\DisplayConfigurationException.cs" />
     <Compile Include="LedFont.cs" />
-    <Compile Include="NewDisplayCreation\NewDisplayDialog.cs">
+    <Compile Include="DisplayAdapterConfiguration\NewDisplayDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewDisplayCreation\NewDisplayDialog.Designer.cs">
+    <Compile Include="DisplayAdapterConfiguration\NewDisplayDialog.Designer.cs">
       <DependentUpon>NewDisplayDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -120,7 +130,10 @@
     <EmbeddedResource Include="ConfigurationPanels\TimeConfigurationPanel.resx">
       <DependentUpon>TimeConfigurationPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewDisplayCreation\NewDisplayDialog.resx">
+    <EmbeddedResource Include="DisplayAdapterConfiguration\ConfigureDisplayDialog.resx">
+      <DependentUpon>ConfigureDisplayDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DisplayAdapterConfiguration\NewDisplayDialog.resx">
       <DependentUpon>NewDisplayDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -128,6 +141,7 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

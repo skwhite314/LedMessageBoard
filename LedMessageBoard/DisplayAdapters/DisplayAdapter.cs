@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using HidLibrary;
+using Newtonsoft.Json;
 
 namespace LedMessageBoard.DisplayAdapters
 {
@@ -28,55 +29,19 @@ namespace LedMessageBoard.DisplayAdapters
 
         public bool Active { get; set; }
 
+        [JsonIgnore]
         public ViewPort ViewPort { get; set; }
 
+        [JsonIgnore]
         public abstract bool DisplayComplete { get; }
 
         public abstract void Draw(HidDevice device, byte brightness);
 
         public abstract void Reset();
 
-        public virtual string Serialize()
-        {
-            var sb = new StringBuilder();
-
-            AppendForSerialize(sb, this.Title);
-            AppendForSerialize(sb, this.Active);
-
-            return sb.ToString();
-        }
-
-        public abstract void PopulateFromString(string s);
-
         public override string ToString()
         {
-            return this.Title ?? "Nothing";
-        }
-
-        protected static void AppendForSerialize(StringBuilder sb, object entry)
-        {
-            if (sb.Length == 0)
-            {
-                sb.Append(entry);
-            }
-            else
-            {
-                sb.Append(Delimiter);
-                sb.Append(entry);
-            }
-        }
-
-        protected string[] PopulateBaseFromString(string s)
-        {
-            var entries = s.Split(new[] { Delimiter }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            this.Title = entries[0];
-            entries.RemoveAt(0);
-
-            this.Active = bool.Parse(entries[0]);
-            entries.RemoveAt(0);
-
-            return entries.ToArray();
+            return this.Title;
         }
     }
 }
